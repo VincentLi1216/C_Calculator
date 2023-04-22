@@ -4,7 +4,7 @@
 
 #define MAXSIZE 1000000 // 設定最大的字串長度
 
-char tokens[1000000][MAXSIZE]; // 輸入的中序運算式
+char tokens[MAXSIZE][MAXSIZE]; // 輸入的中序運算式
 char token[MAXSIZE];
 char output[MAXSIZE]; // 轉換後的後序運算式
 
@@ -84,6 +84,7 @@ void infix2Postfix()
 {
   char nowchar;
   Stack *opStack = createStack(); // 創建 stack
+  char skip_char = ' ';
 
   for (int i = 0; i < strlen(token); i++)
   {
@@ -92,11 +93,16 @@ void infix2Postfix()
     {
     case 0: // 運算元直接加入後序運算式
       append(nowchar);
+      if (op_hierarchy(token[i + 1]) != 0 || i == strlen(token) - 1)
+      {
+        append(skip_char);
+      }
       break;
     case 1: // 加減運算子的處理
       while (!isEmpty(opStack) && op_hierarchy(top(opStack)) >= op_hierarchy(nowchar) && top(opStack) != '(')
       {
         append(pop(opStack));
+        append(skip_char);
       }
       push(opStack, nowchar);
       break;
@@ -104,6 +110,7 @@ void infix2Postfix()
       while (!isEmpty(opStack) && op_hierarchy(top(opStack)) >= op_hierarchy(nowchar) && top(opStack) != '(')
       {
         append(pop(opStack));
+        append(skip_char);
       }
       push(opStack, nowchar);
       break;
@@ -111,6 +118,7 @@ void infix2Postfix()
       while (!isEmpty(opStack) && op_hierarchy(top(opStack)) >= op_hierarchy(nowchar) && top(opStack) != '(')
       {
         append(pop(opStack));
+        append(skip_char);
       }
       push(opStack, nowchar);
       break;
@@ -121,6 +129,7 @@ void infix2Postfix()
       while (!isEmpty(opStack) && top(opStack) != '(')
       {
         append(pop(opStack));
+        append(skip_char);
       }
       if (!isEmpty(opStack) && top(opStack) == '(')
       {
@@ -147,7 +156,10 @@ void infix2Postfix()
       return;
     }
     append(pop(opStack));
+    append(skip_char);
   }
+
+  output[strlen(output) - 1] = '\0';
 }
 
 int op_hierarchy(char op)
@@ -174,7 +186,7 @@ int op_hierarchy(char op)
 
 void append(char op)
 {
-  if (op == ' ' || op == '\n' || op == '\0')
+  if (op == '\n' || op == '\0')
   {
     return;
   }
