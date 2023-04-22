@@ -4,7 +4,8 @@
 
 #define MAXSIZE 1000000 // 設定最大的字串長度
 
-char token[MAXSIZE];  // 輸入的中序運算式
+char tokens[1000000][MAXSIZE]; // 輸入的中序運算式
+char token[MAXSIZE];
 char output[MAXSIZE]; // 轉換後的後序運算式
 
 int op_hierarchy(char op); // 回傳運算子的優先權
@@ -184,9 +185,22 @@ void append(char op)
 
 int main()
 {
-  printf("Please enter an infix expression: ");
-  fgets(token, MAXSIZE, stdin);
-  infix2Postfix();
-  printf("Postfix expression: %s\n", output);
+  int line_num;
+  printf("How many lines of calculation are needed: ");
+  scanf("%d", &line_num);
+  printf("Please enter an infix expression: \n");
+  for (int i = 0; i < line_num; i++)
+  {
+    printf("->");
+    scanf("%s", tokens[i]);
+  }
+  // fgets(token, MAXSIZE, stdin);
+  for (int i = 0; i < line_num; i++)
+  {
+    strcpy(output, "");
+    strcpy(token, tokens[i]);
+    infix2Postfix();
+    printf("Postfix expression: %s\n", output);
+  }
   return 0;
 }
