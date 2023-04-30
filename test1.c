@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <math.h>
 
 #define MAXSIZE 1000000 // 設定最大的字串長度
 
 char tokens[MAXSIZE][MAXSIZE]; // 輸入的中序運算式
 char token[MAXSIZE];
 char output[MAXSIZE]; // 轉換後的後序運算式
-int convert_error = 0;
 
 int op_hierarchy(char op); // 回傳運算子的優先權
 void append(char op);      // 將運算子加入後序運算式的字串尾端
@@ -187,22 +188,61 @@ int op_hierarchy(char op)
 
 void append(char op)
 {
-  if (op == '\n' || op == '\0') // 跳過換行與結束符號
-  {
-    return;
-  }
-  if (op == '/' && output[strlen(output) - 2] == '0') // 偵測除以零錯誤，若有的話那raise全域變數conver_error
-  {
-    strcpy(output, "!DivisionbyZeroException!");
-    convert_error = 1;
-  }
-  if (convert_error) // 如果先前有錯誤訊息，那麼不會再繼續加入字元到output陣列裡
+  if (op == '\n' || op == '\0')
   {
     return;
   }
   int len = strlen(output);
   output[len] = op;
   output[len + 1] = '\0';
+}
+float evaluatePostfix(char *output)
+{
+  float operand1, operand2, result;
+  int i;
+
+  for (i = 0; i < strlen(output); i++)
+  {
+    char c = output[i];
+    if (isdigit(c))
+    {
+      push(c - '0');
+    }
+    else
+    {
+      operand2 = pop();
+      operand1 = pop();
+
+      switch (c)
+      {
+      case '+':
+        result = operand1 + operand2;
+        break;
+      case '-':
+        result = operand1 - operand2;
+        break;
+      case '*':
+        result = operand1 * operand2;
+        break;
+      case '/':
+        result = operand1 / operand2;
+        break;
+      case '%':
+        result = fmod(operand1, operand2);
+        break;
+      case '^':
+        result = pow(operand1, operand2);
+        break;
+      default:
+        printf("Invalid operator\n");
+        exit(1);
+      }
+
+      push(result);
+    }
+  }
+
+  return pop();
 }
 
 int main()
@@ -221,9 +261,10 @@ int main()
   {
     strcpy(output, "");
     strcpy(token, tokens[i]);
-    convert_error = 0;
     infix2Postfix();
     printf("Postfix expression: %s\n", output);
   }
+  float result = evaluatePostfix(output);
+  printf("Result: %f\n", result);
   return 0;
 }
