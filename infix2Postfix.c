@@ -226,9 +226,5 @@ int main()
     printf("Postfix expression: %s\n", output);
     strcpy(tokens[i], output);
   }
-  for (int i = 0; i < line_num; i++)
-  {
-    printf("token:%s\n", tokens[i]);
-  }
   return 0;
 }
