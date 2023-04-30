@@ -196,6 +196,38 @@ void append(char op)
   output[len] = op;
   output[len + 1] = '\0';
 }
+
+void push_e(float item)
+{
+  if (top >= MAXSIZE - 1)
+  {
+    printf("Stack Overflow\n");
+    exit(1);
+  }
+  else
+  {
+    top++;
+    stack[top] = item;
+  }
+}
+
+float pop_e()
+{
+  float item;
+
+  if (top < 0)
+  {
+    printf("Stack Underflow\n");
+    exit(1);
+  }
+  else
+  {
+    item = stack[top];
+    top--;
+    return item;
+  }
+}
+
 float evaluatePostfix(char *output)
 {
   float operand1, operand2, result;
@@ -206,12 +238,12 @@ float evaluatePostfix(char *output)
     char c = output[i];
     if (isdigit(c))
     {
-      push(c - '0');
+      push_e(c - '0');
     }
     else
     {
-      operand2 = pop();
-      operand1 = pop();
+      operand2 = pop_e();
+      operand1 = pop_e();
 
       switch (c)
       {
@@ -238,11 +270,11 @@ float evaluatePostfix(char *output)
         exit(1);
       }
 
-      push(result);
+      push_e(result);
     }
   }
 
-  return pop();
+  return pop_e();
 }
 
 int main()

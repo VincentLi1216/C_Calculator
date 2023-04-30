@@ -193,7 +193,7 @@ void append(char op)
   }
   if (op == '/' && output[strlen(output) - 2] == '0') // 偵測除以零錯誤，若有的話那raise全域變數conver_error
   {
-    strcpy(output, "!DivisionbyZeroException!");
+    strcpy(output, "!DivisionbyZeroException! ");
     convert_error = 1;
   }
   if (convert_error) // 如果先前有錯誤訊息，那麼不會再繼續加入字元到output陣列裡
@@ -224,6 +224,11 @@ int main()
     convert_error = 0;
     infix2Postfix();
     printf("Postfix expression: %s\n", output);
+    strcpy(tokens[i], output);
+  }
+  for (int i = 0; i < line_num; i++)
+  {
+    printf("token:%s\n", tokens[i]);
   }
   return 0;
 }
