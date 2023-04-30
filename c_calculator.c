@@ -29,7 +29,7 @@ Stack *createStack() // 創建 stack
   return stack;
 }
 
-void push(Stack *stack, char data) // 壓入元素到 stack 中
+void push(Stack *stack, char data) // pust元素到 stack 中
 {
   if (stack->top == MAXSIZE - 1)
   {
@@ -39,7 +39,7 @@ void push(Stack *stack, char data) // 壓入元素到 stack 中
   stack->arr[++stack->top] = data;
 }
 
-char pop(Stack *stack) // 彈出 stack 中的元素
+char pop(Stack *stack) // pop stack 中的元素
 {
   if (stack->top == -1)
   {
@@ -85,6 +85,8 @@ void display(Stack *stack) // 顯示 stack 中的元素
   printf("\n");
 }
 
+/* 給double Stack用的函式 */
+
 typedef struct
 {
   double data[MAXSIZE];
@@ -128,7 +130,7 @@ double d_pop(dStack *s)
   return s->data[s->top--];
 }
 
-void infix2Postfix()
+void infix2Postfix() // 將infix式子轉成postfix式子
 {
   char nowchar;
   Stack *opStack = createStack(); // 創建 stack
@@ -184,13 +186,12 @@ void infix2Postfix()
         pop(opStack);
       }
       else
-      {
-        // printf("Error: Mismatched parentheses\n");
+      { // 括號不對稱錯誤
         append('(');
         return;
       }
       break;
-    default:
+    default: // 錯誤輸入
       // printf("Error: Invalid input\n");
       append('!');
       return;
@@ -213,11 +214,10 @@ void infix2Postfix()
   output[strlen(output) - 1] = '\0';
 }
 
-double evaluation()
+double evaluation() // 計算postfix式子
 {
   dStack d_Stack;
   d_init(&d_Stack);
-  // char token[MAXSIZE] = "73 5 / 3 ^ 23 * 65 4 * -";
   int i = 0;
   double total = 0;
   double result;
@@ -227,29 +227,29 @@ double evaluation()
   while (eval_error == 0 && token[i] != '\0' && token[i] != '\n' && i < strlen(token))
   {
     char nowchar = token[i];
-    if (nowchar == '!')
+    if (nowchar == '!') // 當token存在錯誤時
     {
       eval_error = 1;
       return 0.0;
     }
-    if (isdigit(nowchar) || nowchar == '.')
+    if (isdigit(nowchar) || nowchar == '.') // 數字push到d_Stack裡
     {
       while (nowchar != ' ' && nowchar != '\0' && nowchar != '\n')
       {
-        if (isdigit(nowchar))
+        if (isdigit(nowchar)) // 整數以上處理
         {
           if (!isDecimal)
           {
             total *= 10;
             total += nowchar - '0';
           }
-          else
+          else // 小數位處理
           {
             decimal_places++;
             total = total + ((nowchar - '0') / pow(10, decimal_places));
           }
         }
-        else if (nowchar == '.')
+        else if (nowchar == '.') // 小數點
         {
           isDecimal = true;
         }
@@ -257,18 +257,16 @@ double evaluation()
         nowchar = token[i];
       }
       d_push(&d_Stack, total);
-      // d_display(&d_Stack);
-      // printf("%.10lf\n", total);
       // 重設變數
       total = 0;
       decimal_places = 0;
       isDecimal = false;
     }
-    else if (nowchar == ' ')
+    else if (nowchar == ' ') // 空格
     {
       i++;
     }
-    else
+    else // 計算運算子
     {
       double operand2 = d_pop(&d_Stack);
       double operand1 = d_pop(&d_Stack);
@@ -311,7 +309,7 @@ double evaluation()
   return result;
 }
 
-int op_hierarchy(char op)
+int op_hierarchy(char op) // 定義運算子優先順序
 {
   switch (op)
   {
@@ -333,7 +331,7 @@ int op_hierarchy(char op)
   }
 }
 
-void append(char op)
+void append(char op) // 加入output最後面
 {
   if (op == '\n' || op == '\0') // 跳過換行與結束符號
   {
@@ -349,12 +347,12 @@ void append(char op)
     strcpy(output, "!ModuloByZeroException! ");
     convert_error = 1;
   }
-  if (op == '(')
+  if (op == '(') // 偵測括號不對稱錯誤，若有的話那raise全域變數conver_error
   {
     strcpy(output, "!MismatchParenthesesException! ");
     convert_error = 1;
   }
-  if (op == '!' || !isdigit(op))
+  if (op == '!' || !isdigit(op)) // 偵測錯誤輸入錯誤，若有的話那raise全域變數conver_error
   {
     if (op != '+' && op != '-' && op != '*' && op != '/' && op != '^' && op != '%' && op != '(' && op != ')' && op != ' ')
     {
@@ -374,16 +372,16 @@ void append(char op)
 int main()
 {
   int line_num;
-  printf("How many lines of calculation are needed: ");
+  printf("How many lines of calculation are needed: "); // 請使用者輸入有幾行運算式
   scanf("%d", &line_num);
   printf("Please enter an infix expression: \n");
-  for (int i = 0; i < line_num; i++)
+  for (int i = 0; i < line_num; i++) // 使用者輸入運算式
   {
     printf("->");
     scanf("%s", tokens[i]);
   }
-  // fgets(token, MAXSIZE, stdin);
-  for (int i = 0; i < line_num; i++)
+
+  for (int i = 0; i < line_num; i++) // 將每個運算式從infix轉成postfix
   {
     strcpy(output, "");
     strcpy(token, tokens[i]);
@@ -394,7 +392,7 @@ int main()
   }
   printf("\n\n---Final Result---\n");
 
-  for (int i = 0; i < line_num; i++)
+  for (int i = 0; i < line_num; i++) // 將計算每個運算式並輸出結果
   {
     eval_error = 0;
     strcpy(token, tokens[i]);
@@ -408,8 +406,6 @@ int main()
       printf("->%.10lf\n", evaluation());
     }
   }
-  // strcpy(token, "73 5 / 3 ^ 23 * 65 4 * -");
-  // printf("final result: %lf\n", evaluation());
 
   return 0;
 }
